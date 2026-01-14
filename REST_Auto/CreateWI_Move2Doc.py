@@ -12,7 +12,7 @@ SPACE_ID = "SW"
 DOC_NAME = "HLD Specs"
 # Optional: ID of the heading you want this under (e.g., 'EL-123'). 
 # If you don't have one yet, leave as None.
-PARENT_ID = "PDPXMT-25208" 
+PARENT_ID = "PDPXMT-25253" 
 SEVERITY = "should_have"
 
 headers = {
@@ -58,6 +58,36 @@ inter_data = {
     ]  # End of the "data" list
 }
 
+
+inter_data_list = [
+    {"title": "ACOM_Init", "function": "+ ACOM_Init(): void", "desc": "Initializes the ACOM software component.", "severity": "must_have"},
+    {"title": "ACOM_MainFunction", "function": "+ ACOM_MainFunction(): void", "desc": "Periodic main function call for the component.", "severity": "must_have"},
+    {"title": "ACOM_SpeedReqRpm_Get", "function": "+ ACOM_SpeedReqRpm_Get(): uint16_t", "desc": "Getter for the requested speed in RPM.", "severity": "should_have"},
+    {"title": "ACOM_SpdReqOutOfRngFig_Get", "function": "+ ACOM_SpdReqOutOfRngFig_Get(): boolean", "desc": "Flag indicating if the speed request is out of range.", "severity": "should_have"},
+    {"title": "ACOM_SpdFbPwmHz_Get", "function": "+ ACOM_SpdFbPwmHz_Get(): uint16_t", "desc": "Getter for the speed feedback PWM frequency in Hz.", "severity": "should_have"},
+    {"title": "ACOM_SpdReqVolt_Set", "function": "+ ACOM_SpdReqVolt_Set(int16_t): void", "desc": "Setter for the requested voltage.", "severity": "should_have"},
+    {"title": "ACOM_ActualSpdRpm_Set", "function": "+ ACOM_ActualSpdRpm_Set(int16_t): void", "desc": "Setter for the actual feedback speed in RPM.", "severity": "should_have"}
+]
+
+def fill_list(item, wi_type):
+  wi_data = {
+      "data": [
+          {
+              "type": "workitems",
+              "attributes": {
+                  "type": wi_type,
+                  "title": item["title"],
+                  "description": {
+                      "type": "text/html",
+                      "value": item["desc"]
+                  },
+                  "severity": SEVERITY
+              }
+          }  # End of the Work Item dictionary
+      ]  # End of the "data" list
+  }
+  return wi_data
+  
 param_data = {
     "data": [
         {
@@ -74,6 +104,7 @@ param_data = {
         }  # End of the Work Item dictionary
     ]  # End of the "data" list
 }
+
 
 # Updated headers dictionary
 headers = {
@@ -205,9 +236,32 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
     # Use just DOC_PATH if it already contains the space (e.g. 'SW/HLD Specs')
     move_url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems/{new_wi_id}/actions/moveToDocument"
     
-    safe_doc = urllib.parse.quote(_DOC_NAME)
     doc_ref = f"{_PROJECT_ID}/{_SPACE_ID}/{_DOC_NAME}"
-    #/projects/{_PROJECT_ID}/spaces/{_SPACE_ID}/documents/{safe_doc}"
+    
+    # The URL targets the 'linkedworkitems' sub-resource of your NEW work item
+    link_url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems/{new_wi_id}/linkedworkitems"
+
+    link_payload = {
+        "data": [{
+            "type": "linkedworkitems",
+            "attributes": {
+                "role": "parent"  # Change to 'has_parent' if that is your system's ID
+            },
+            "relationships": {
+                "workItem": {
+                    "data": {
+                        "id": f"{_PROJECT_ID}/{PARENT_ID}",
+                        "type": "workitems"
+                    }
+                }
+            }
+        }]
+    }
+
+    # Use POST to add the new link
+    link_res = requests.post(link_url, headers=local_headers, json=link_payload, verify=False)
+
+    
     move_data = {
                 "targetDocument": doc_ref
     }
@@ -256,6 +310,7 @@ if __name__ == "__main__":
         f"{wi_link(interface1_id)} " # This creates the visual link
         "param1 is true"
     )
-    print(f"req description: {new_desc_text}")
+    #print(f"req description: {new_desc_text}")
     req_data['data'][0]['attributes']['description']['value'] = new_desc_text
-    create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, req_data)
+    for wi in inter_data_list:
+      create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, fill_list(wi, "interface"))
