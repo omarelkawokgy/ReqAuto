@@ -81,26 +81,12 @@ headers = {
     "Accept": "application/json"         # Recommended: Tells Polarion what you expect back
 }
 
-def get_polarion_document(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _TOKEN):
+def get_polarion_document(_doc_url):
     """
     Accesses a specific Polarion LiveDoc and prints its metadata.
     """
-    # URL encode IDs to handle spaces or special characters
-    safe_space = urllib.parse.quote(_SPACE_ID)
-    safe_doc = urllib.parse.quote(_DOC_NAME)
-    
-    # Endpoint: /projects/{projectId}/spaces/{spaceId}/documents/{documentName}
-    url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/spaces/{safe_space}/documents/{safe_doc}"
- 
-    headers = {
-        "Authorization": f"Bearer {_TOKEN}",
-        "Accept": "application/json"
-    }
-
-    print(f"Requesting Document: {url}")
-    
     try:
-        response = requests.get(url, headers=headers, verify=False)
+        response = requests.get(_doc_url, headers=headers, verify=False)
         
         if response.status_code == 200:
             doc_data = response.json().get('data', {})
@@ -108,7 +94,6 @@ def get_polarion_document(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _TOKEN
             print(f"Title: {doc_data.get('attributes', {}).get('title')}")
             print(f"Internal ID: {doc_data.get('id')}")
             print(f"Module URI: {doc_data.get('links', {}).get('self')}")
-            return doc_data
         else:
             print(f"--- ? FAILED (Status {response.status_code}) ---")
             print(f"Response: {response.text}")
@@ -117,6 +102,48 @@ def get_polarion_document(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _TOKEN
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+
+def get_workitemList(_doc_url, _wi_type):
+  # The space and doc name should be raw (e.g. "SW" and "HLD Specs")
+  get_items_url = (_doc_url+f"/parts"
+  f"?include=workItem"
+  f"&fields[workitems]=type,title,id")
+  
+  print(f"get_items_url: {get_items_url}")
+  
+  response = requests.get(get_items_url, headers=headers, verify=False)
+  print(f"DEBUG: Status Code Received: {response.status_code}") # Add this
+  if response.status_code == 200:
+      response_json = response.json()
+  
+      # Polarion REST (JSON:API) stores related objects in 'included'
+      included_objects = response_json.get('included', [])
+      print(f"DEBUG: Found {len(included_objects)} included_objects(s).")
+      
+      # Filter 'included' objects where the type is 'interface'
+      # In 2026, 'type' is typically an ID within the attributes
+      wi_list = [
+      obj for obj in included_objects 
+      if obj.get('type') == 'workitems' and obj.get('attributes', {}).get('type') == _wi_type
+      ]
+      print(f"\nTotal wi_list {_wi_type} collected: {len(wi_list)}")
+    
+      for obj in included_objects:
+        #Get the data inside attributes
+        attrs = obj.get('attributes', {})
+        obj_id = obj.get('id')
+        
+        #Get the specific Polarion Type (e.g., 'interface', 'requirement', 'heading')
+        polarion_type = attrs.get('type')
+        title = attrs.get('title', 'NO TITLE')
+        
+        print(f"--- Object ID: {obj_id} ---")
+        print(f"  Resource Type (API): {obj.get('type')}")
+        print(f"  Polarion Type (WorkItem): {polarion_type}")
+        print(f"  Title: {title}")
+  else:
+      print(f"Failed to fetch document items: {response.status_code}")
+  return wi_list
 
 def test_connection(_SERVER_URL, _PROJECT_ID):
     # This is the simplest possible call to verify access
@@ -140,8 +167,9 @@ def test_connection(_SERVER_URL, _PROJECT_ID):
         print(f"An error occurred: {e}")
 
         
-# --- EXECUTION ---
-def run_trial(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
+        
+
+def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
     #url = f"{_SERVER_URL}/projects/{PROJECT_ID}/workitems"
     url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems"
     safe_doc = urllib.parse.quote(_DOC_NAME)
@@ -185,7 +213,26 @@ def run_trial(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
     else:
         print(f"!!! Move Failed (Status {move_res.status_code})")
         print(f"Response Body: {move_res.text}")
+        
+        
+        
 if __name__ == "__main__":
+
+        # URL encode IDs to handle spaces or special characters
+    safe_space = urllib.parse.quote(SPACE_ID)
+    safe_doc = urllib.parse.quote(DOC_NAME)
+    
+    # Endpoint: /projects/{projectId}/spaces/{spaceId}/documents/{documentName}
+    doc_url = f"{SERVER_URL}/projects/{PROJECT_ID}/spaces/{safe_space}/documents/{safe_doc}"
+ 
+    headers = {
+        "Authorization": f"Bearer {TOKEN}",
+        "Accept": "application/json"
+    }
+
+    print(f"Requesting Document: {doc_url}")
+    
     test_connection(SERVER_URL, PROJECT_ID)
-    get_polarion_document(SERVER_URL, PROJECT_ID, SPACE_ID, DOC_NAME, TOKEN)
-    run_trial(SERVER_URL, PROJECT_ID, SPACE_ID, DOC_NAME, param_data)
+    get_polarion_document(doc_url)
+    get_workitemList(doc_url, "interface")
+    #create_n_move(SERVER_URL, PROJECT_ID, SPACE_ID, DOC_NAME, param_data)
