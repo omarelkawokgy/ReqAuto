@@ -16,8 +16,9 @@ PARENT_ID = "PDPXMT-25208"
 SEVERITY = "should_have"
 
 headers = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Accept": "application/json"
+    'Authorization': f'Bearer {TOKEN}',
+    'Content-Type': 'application/vnd.api+json', 
+    'Accept': 'application/vnd.api+json'
 }
 
 # --- REQUIREMENT DATA ---
@@ -29,10 +30,10 @@ req_data = {
             "type": "workitems",
             "attributes": {
                 "type": "der_requirement",
-                "title": "My New Requirement2",
+                "title": "My New Requirement21",
                 "description": {
                     "type": "text/html",
-                    "value": "SWC2 shall provide interface1 with false when param1 is true"
+                    "value": "ascsdcsd"
                 },
                 "severity": SEVERITY
             }
@@ -76,9 +77,9 @@ param_data = {
 
 # Updated headers dictionary
 headers = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Content-Type": "application/json",  # CRITICAL: Polarion requires this
-    "Accept": "application/json"         # Recommended: Tells Polarion what you expect back
+    'Authorization': f'Bearer {TOKEN}',
+    'Content-Type': 'application/json',  # Pure header, no charset
+    'Accept': 'application/json'
 }
 
 def get_polarion_document(_doc_url):
@@ -170,26 +171,33 @@ def test_connection(_SERVER_URL, _PROJECT_ID):
         
 
 def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
-    #url = f"{_SERVER_URL}/projects/{PROJECT_ID}/workitems"
+
     url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems"
-    safe_doc = urllib.parse.quote(_DOC_NAME)
-    # Use json= instead of data= to let requests handle serialization & headers,
+    
+    local_headers = {
+    'Authorization': f'Bearer {TOKEN}',
+    'Content-Type': 'application/json', 
+    'Accept': 'application/json'
+    }
+        
     # OR keep data=json.dumps(req_data) with the explicit header above.
     response = requests.post(
         url, 
-        headers=headers, 
+        headers=local_headers, 
         data=json.dumps(_req_data), # Ensure this is a string
         verify=False
     )
     
-    if response.status_code == 201:
-        # Note: Polarion v1 REST API often returns data in a 'data' wrapper
-        response_json = response.json()
-        new_id = response_json['data'][0]['id'] 
-        print(f"Success! Requirement created as: {new_id}")
-    else:
+    if response.status_code != 201:
         print(f"Failed with status {response.status_code}")
         print(response.text)
+        return
+        
+    # Note: Polarion v1 REST API often returns data in a 'data' wrapper
+    response_json = response.json()
+    new_id = response_json['data'][0]['id'] 
+    print(f"Success! Requirement created as: {new_id}")
+        
     #new_wi_id = new_wi_id.replace("", _PROJECT_ID)
     new_wi_id = new_id.replace(f"{_PROJECT_ID}/", "")
     print(f"new_wi_id: {new_wi_id}")
@@ -197,6 +205,7 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
     # Use just DOC_PATH if it already contains the space (e.g. 'SW/HLD Specs')
     move_url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems/{new_wi_id}/actions/moveToDocument"
     
+    safe_doc = urllib.parse.quote(_DOC_NAME)
     doc_ref = f"{_PROJECT_ID}/{_SPACE_ID}/{_DOC_NAME}"
     #/projects/{_PROJECT_ID}/spaces/{_SPACE_ID}/documents/{safe_doc}"
     move_data = {
@@ -214,7 +223,9 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
         print(f"!!! Move Failed (Status {move_res.status_code})")
         print(f"Response Body: {move_res.text}")
         
-        
+def wi_link(wi_id, style="long"):
+    """Generates the Polarion HTML span for a Work Item link."""
+    return f'<span class="polarion-rte-link" data-type="workItem" data-item-id="{wi_id}" data-option-id="{style}"></span>'
         
 if __name__ == "__main__":
 
@@ -234,5 +245,17 @@ if __name__ == "__main__":
     
     test_connection(SERVER_URL, PROJECT_ID)
     get_polarion_document(doc_url)
-    get_workitemList(doc_url, "interface")
-    #create_n_move(SERVER_URL, PROJECT_ID, SPACE_ID, DOC_NAME, param_data)
+    interfaceList = get_workitemList(doc_url, "interface")
+    
+    interface1 = interfaceList[0]
+    interface1_id = interface1['id'].split('/')[-1] # e.g., 'PDPXMT-25234'
+
+    # Define the new description text using Polarion Wiki Markup for a link
+    new_desc_text = (
+        "SWC2 shall provide interface1 with false when "
+        f"{wi_link(interface1_id)} " # This creates the visual link
+        "param1 is true"
+    )
+    print(f"req description: {new_desc_text}")
+    req_data['data'][0]['attributes']['description']['value'] = new_desc_text
+    create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, req_data)
