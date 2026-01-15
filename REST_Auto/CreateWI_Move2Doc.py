@@ -201,7 +201,7 @@ def test_connection(_SERVER_URL, _PROJECT_ID):
         
         
 
-def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
+def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_req_data):
 
     url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems"
     
@@ -250,7 +250,7 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _req_data):
             "relationships": {
                 "workItem": {
                     "data": {
-                        "id": f"{_PROJECT_ID}/{PARENT_ID}",
+                        "id": f"{_PROJECT_ID}/{_PARENT_ID}",
                         "type": "workitems"
                     }
                 }
@@ -313,4 +313,4 @@ if __name__ == "__main__":
     #print(f"req description: {new_desc_text}")
     req_data['data'][0]['attributes']['description']['value'] = new_desc_text
     for wi in inter_data_list:
-      create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, fill_list(wi, "interface"))
+      create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"))
