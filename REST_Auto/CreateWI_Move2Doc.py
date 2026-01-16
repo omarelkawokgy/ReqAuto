@@ -1,6 +1,8 @@
 import requests
 import json
 import urllib.parse
+from get_pol_doc import get_polarion_document
+from get_wi_list import get_workitemList
 
 # --- SETTINGS ---
 SERVER_URL = "https://almdev.mahle/polarion/rest/v1"
@@ -17,8 +19,8 @@ SEVERITY = "should_have"
 
 headers = {
     'Authorization': f'Bearer {TOKEN}',
-    'Content-Type': 'application/vnd.api+json', 
-    'Accept': 'application/vnd.api+json'
+    'Content-Type': 'application/json', 
+    'Accept': 'application/json'
 }
 
 # --- REQUIREMENT DATA ---
@@ -105,86 +107,14 @@ param_data = {
     ]  # End of the "data" list
 }
 
-
-# Updated headers dictionary
-headers = {
-    'Authorization': f'Bearer {TOKEN}',
-    'Content-Type': 'application/json',  # Pure header, no charset
-    'Accept': 'application/json'
-}
-
-def get_polarion_document(_doc_url):
-    """
-    Accesses a specific Polarion LiveDoc and prints its metadata.
-    """
-    try:
-        response = requests.get(_doc_url, headers=headers, verify=False)
-        
-        if response.status_code == 200:
-            doc_data = response.json().get('data', {})
-            print("--- ? DOCUMENT ACCESSED ---")
-            print(f"Title: {doc_data.get('attributes', {}).get('title')}")
-            print(f"Internal ID: {doc_data.get('id')}")
-            print(f"Module URI: {doc_data.get('links', {}).get('self')}")
-        else:
-            print(f"--- ? FAILED (Status {response.status_code}) ---")
-            print(f"Response: {response.text}")
-            return None
-            
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
-
-def get_workitemList(_doc_url, _wi_type):
-  # The space and doc name should be raw (e.g. "SW" and "HLD Specs")
-  get_items_url = (_doc_url+f"/parts"
-  f"?include=workItem"
-  f"&fields[workitems]=type,title,id")
-  
-  print(f"get_items_url: {get_items_url}")
-  
-  response = requests.get(get_items_url, headers=headers, verify=False)
-  print(f"DEBUG: Status Code Received: {response.status_code}") # Add this
-  if response.status_code == 200:
-      response_json = response.json()
-  
-      # Polarion REST (JSON:API) stores related objects in 'included'
-      included_objects = response_json.get('included', [])
-      print(f"DEBUG: Found {len(included_objects)} included_objects(s).")
-      
-      # Filter 'included' objects where the type is 'interface'
-      # In 2026, 'type' is typically an ID within the attributes
-      wi_list = [
-      obj for obj in included_objects 
-      if obj.get('type') == 'workitems' and obj.get('attributes', {}).get('type') == _wi_type
-      ]
-      print(f"\nTotal wi_list {_wi_type} collected: {len(wi_list)}")
-    
-      for obj in included_objects:
-        #Get the data inside attributes
-        attrs = obj.get('attributes', {})
-        obj_id = obj.get('id')
-        
-        #Get the specific Polarion Type (e.g., 'interface', 'requirement', 'heading')
-        polarion_type = attrs.get('type')
-        title = attrs.get('title', 'NO TITLE')
-        
-        print(f"--- Object ID: {obj_id} ---")
-        print(f"  Resource Type (API): {obj.get('type')}")
-        print(f"  Polarion Type (WorkItem): {polarion_type}")
-        print(f"  Title: {title}")
-  else:
-      print(f"Failed to fetch document items: {response.status_code}")
-  return wi_list
-
-def test_connection(_SERVER_URL, _PROJECT_ID):
+def test_connection(_SERVER_URL, _PROJECT_ID, loc_headers):
     # This is the simplest possible call to verify access
     url_connectionTest = f"{_SERVER_URL}/projects/{_PROJECT_ID}"
     
     print(f"Connecting to: {url_connectionTest}...")
     
     try:
-        response = requests.get(url_connectionTest, headers=headers, verify=False)
+        response = requests.get(url_connectionTest, headers=loc_headers, verify=False)
         
         if response.status_code == 200:
             print("--- SUCCESS! ---")
@@ -201,20 +131,31 @@ def test_connection(_SERVER_URL, _PROJECT_ID):
         
         
 
-def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_req_data):
+def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_req_data, _doc_url, loc_headers):
 
-    url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems"
+    # Assuming _req_data structure is: {"data": {"attributes": {"title": "...", "type": "..."}}}
+    new_title = _req_data['data'][0]['attributes']['title']
+    new_type = _req_data['data'][0]['attributes']['type']
     
-    local_headers = {
-    'Authorization': f'Bearer {TOKEN}',
-    'Content-Type': 'application/json', 
-    'Accept': 'application/json'
-    }
-        
+    # Use your existing function
+    existing_items = get_workitemList(_doc_url, new_type, loc_headers)
+    
+    print(f"title of new item: {new_title}")
+    print(f"type of new item: {new_type}")
+    # Check if title exists in the returned list
+    for item in existing_items:
+        print(f"title of in list: {item.get('attributes', {}).get('title')}")
+        # Note: Adjust 'title' key depending on how your get_workitemList parses data
+        if item.get('attributes', {}).get('title') == new_title:
+            print(f"Skipping: Work Item '{new_title}' already exists in document.")
+            return item.get('id')
+            
+    url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems"
+     
     # OR keep data=json.dumps(req_data) with the explicit header above.
     response = requests.post(
         url, 
-        headers=local_headers, 
+        headers=loc_headers, 
         data=json.dumps(_req_data), # Ensure this is a string
         verify=False
     )
@@ -259,7 +200,7 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_re
     }
 
     # Use POST to add the new link
-    link_res = requests.post(link_url, headers=local_headers, json=link_payload, verify=False)
+    link_res = requests.post(link_url, headers=loc_headers, json=link_payload, verify=False)
 
     
     move_data = {
@@ -269,7 +210,7 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_re
     print(f"\n[Step 2] Moving to Document: {move_url}")
     print(f"Payload: {json.dumps(move_data)}")
     
-    move_res = requests.post(move_url, headers=headers, json=move_data, verify=False)
+    move_res = requests.post(move_url, headers=loc_headers, json=move_data, verify=False)
     
     if move_res.status_code in [200, 204]:
         print(f"+++ Successfully moved {new_wi_id} into Document.")
@@ -283,23 +224,19 @@ def wi_link(wi_id, style="long"):
         
 if __name__ == "__main__":
 
-        # URL encode IDs to handle spaces or special characters
+    # URL encode IDs to handle spaces or special characters
     safe_space = urllib.parse.quote(SPACE_ID)
     safe_doc = urllib.parse.quote(DOC_NAME)
     
     # Endpoint: /projects/{projectId}/spaces/{spaceId}/documents/{documentName}
     doc_url = f"{SERVER_URL}/projects/{PROJECT_ID}/spaces/{safe_space}/documents/{safe_doc}"
- 
-    headers = {
-        "Authorization": f"Bearer {TOKEN}",
-        "Accept": "application/json"
-    }
+              
 
     print(f"Requesting Document: {doc_url}")
     
-    test_connection(SERVER_URL, PROJECT_ID)
-    get_polarion_document(doc_url)
-    interfaceList = get_workitemList(doc_url, "interface")
+    test_connection(SERVER_URL, PROJECT_ID, headers)
+    get_polarion_document(doc_url, headers)
+    interfaceList = get_workitemList(doc_url, "interface", headers)
     
     interface1 = interfaceList[0]
     interface1_id = interface1['id'].split('/')[-1] # e.g., 'PDPXMT-25234'
@@ -313,4 +250,4 @@ if __name__ == "__main__":
     #print(f"req description: {new_desc_text}")
     req_data['data'][0]['attributes']['description']['value'] = new_desc_text
     for wi in inter_data_list:
-      create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"))
+        create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
