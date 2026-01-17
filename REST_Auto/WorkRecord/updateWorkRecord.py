@@ -117,18 +117,21 @@ if __name__ == "__main__":
 
     # 2. Convert DataFrame rows to dictionaries and iterate
     for record in records_df:        
-        if record['project_name'] == 'PXM010' and record['date'] == '2026-01-13':
-            # 3. Call the Polarion REST function
-            # Note: Ensure variables like SERVER_URL and user_id are defined in your scope
-            ret = checkNaddWorkRecord(
-                _SERVER_URL=SERVER_URL, 
-                _PROJECT_ID=record['project_name'], 
-                _TASK_ID=record['task_id'], 
-                _user="e0149968", 
-                _date=record['date'], 
-                _timeSpent=str(record['hours']), 
-                _type="", 
-                _comment=record['task_des'], 
-                loc_headers=headers
-            )
-            print(f"Status for {task_id}: {ret}")        
+        #if record['project_name'] == 'PXM010' and record['date'] == '2026-01-13':
+        # 3. Call the Polarion REST function
+        # Note: Ensure variables like SERVER_URL and user_id are defined in your scope
+        ret = checkNaddWorkRecord(
+            _SERVER_URL=SERVER_URL, 
+            _PROJECT_ID=record['project_name'], 
+            _TASK_ID=record['task_id'], 
+            _user="e0149968", 
+            _date=record['date'], 
+            _timeSpent=str(record['hours']), 
+            _type="", 
+            _comment=record['task_des'], 
+            loc_headers=headers
+        )
+        #print(f"Status for {task_id}: {ret}")
+            
+    #TODO: update the sheet with status of the task set it from sheet to polrion if needed
+    #TODO: request update a certain week only instead of the whole sheet        
