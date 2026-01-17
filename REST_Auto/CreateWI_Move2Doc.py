@@ -15,6 +15,7 @@ Key Actions:
        within the specific document structure.
 """
 
+import re
 import requests
 import json
 import urllib.parse
@@ -238,6 +239,28 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_re
 def wi_link(wi_id, style="long"):
     """Generates the Polarion HTML span for a Work Item link."""
     return f'<span class="polarion-rte-link" data-type="workItem" data-item-id="{wi_id}" data-option-id="{style}"></span>'
+
+def process_requirement_text(raw_text, source_lists):
+    if isinstance(source_lists, dict):
+        source_lists = [source_lists]
+
+    lookup = {}
+    for item in source_lists:
+        if isinstance(item, dict):
+            title = item.get('attributes', {}).get('title')
+            wi_id = item.get('id')
+            if title and wi_id:
+                lookup[title] = wi_id
+
+    def replacement(match):
+        title = match.group(1)
+        if title in lookup:
+            raw_id = lookup[title].split('/')[-1]
+            return f'<span class="polarion-rte-link" data-type="workItem" data-item-id="{raw_id}" data-option-id="long">{title}</span>'
+        return match.group(0)
+
+    # Use 'raw_text' as defined in the function header above
+    return re.sub(r'\{([^}]+)\}', replacement, raw_text)
         
 if __name__ == "__main__":
 
@@ -253,20 +276,28 @@ if __name__ == "__main__":
     
     test_connection(SERVER_URL, PROJECT_ID, headers)
     get_polarion_document(doc_url, headers)
+    
     interfaceList = get_workitemList(doc_url, "interface", headers)
+    parameterList = get_workitemList(doc_url, "parameter", headers)
     
     interface1 = interfaceList[0]
     interface1_id = interface1['id'].split('/')[-1] # e.g., 'PDPXMT-25234'
-
-    # Define the new description text using Polarion Wiki Markup for a link
-    new_desc_text = (
-        "SWC2 shall provide interface1 with false when "
-        f"{wi_link(interface1_id)} " # This creates the visual link
-        "param1 is true"
-    )
-    print(f"req description: {new_desc_text}")
-    req_data['data'][0]['attributes']['description']['value'] = new_desc_text
+    print(f"parameterList len: {len(parameterList)}")
+    raw_text = "SWC2 shall provide interface3 with false when {SWC_init} this is parameter {SWC_Param1} is true another interface {ACOM_SpdFbPwmHz_Get} also another param {SWC_Param1}"
     
-    # CREATING list of INTERFACES
-    for wi in inter_data_list:
-        create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
+    polTxtP = process_requirement_text(raw_text, interfaceList+parameterList)
+    print(f"req description: {polTxtP}")
+#     # Define the new description text using Polarion Wiki Markup for a link
+#     new_desc_text = (
+#         "SWC2 shall provide interface1 with false when "
+#         f"{wi_link(interface1_id)} " # This creates the visual link
+#         "param1 is true"
+#     )
+#     print(f"req description: {new_desc_text}")
+    req_data['data'][0]['attributes']['description']['value'] = polTxtP
+    req_data['data'][0]['attributes']['title'] = polTxtP
+#     
+#     # CREATING list of INTERFACES
+#     for wi in inter_data_list:
+    create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, req_data, doc_url, headers)
+      #create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
