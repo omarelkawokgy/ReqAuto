@@ -3,11 +3,12 @@ import json
 import urllib.parse
 #from get_pol_doc import get_polarion_document
 #from get_wi_list import get_workitemList
+from ReadFromSheet import get_work_records
 
 # --- SETTINGS ---
-SERVER_URL = "https://almdev.mahle/polarion/rest/v1"
+SERVER_URL = "https://alm.mahle/polarion/rest/v1"
 PROJECT_ID = "PDPXMT"
-TOKEN = "eyJraWQiOiI1ZjA2NWZmZC0wYTkxNGEzMC0wNWE0YjE4Yy1hNTQxMWYyNCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiYzhjMmU1NGUtMGE5MTRhMzAtNzY5MjAyZDUtODM4NWNjOGIiLCJleHAiOjE4NTQ5MTMzNzQsImlhdCI6MTc2ODU5OTc3NH0.TpQf5YcwVx3GZ14KD6YMWU9AaXVF5mno4UvBQ61MNBmr1Y_5ltvCP8pnjbl9skFh2nsvzmR2sqYdb1HlLvjLJgdGTDpWdmN_X7pcRZkvg9QqQA6zgXXjKhTgA1Tp0A_ztQ_Umhr1D_HvI3AODf7vc84rBgzZhbAHVEk3vluXigKweyExEQZX7TiIl7BWZ2fbr1nLzCmdAv1dJfI3OFFf30rwbv4WXL6zt0sVWptbymVdTlA5TjcY-BKyg-bFTvV62hktMH3LhPQ0FqsNCkoYSPjKEPx7nLkwBD7MNC9ZvFkUIHDG3tzQOw2nL7IWVYAN2wxCyh2_bgFzkDZsRBFJuw" # (Your
+TOKEN = "eyJraWQiOiI0MzFiODM3Mi0wYTkxNjM1Mi03ODJjMDc2ZS04ZDg5NzJkNiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiY2JiMWMwMTQtMGE5MTYzNTItNmZmMzYxYTctZjNiZWNhMmUiLCJleHAiOjE4NTQ5NjI1ODIsImlhdCI6MTc2ODY0ODk4Mn0.VHPjpkV2nAEeMfiingXCRhG0t22ujlNeJhKIVdlOK2BWpuomZDA7aKLpTSW8Kr-G1g77_3cFxwwMiDk6gVKIYy5z0XZsJ2JmPp83OHwLdoKccdJ3syjdFLWwiXMLmumo_8b5zlxf59ZkkkxglvkeR-b0-TveSSMAJn68dJ3iYDXSg19u4CwNITe2kkTKA0Umx_0OQaz-0jLCttygNcevUaE4xEFlks-zcSdglhMkpCX-C1Ct1CzquvFNelLZaAb6cW_-bvXGujKfVtqLL3jgr69604KgUqnNVD_nYg8sFmkC71vJLjfCBsGrZGi-h3O7D66LT802o2qQoCa6AFpDVQ" # (Your
 
 TASK_ID = "PDPXMT-23815"
 
@@ -108,6 +109,26 @@ def checkNaddWorkRecord(_SERVER_URL, _PROJECT_ID, _TASK_ID, _user, _date, _timeS
         print(f"✅ Duplicate Found: Skipping record")    
         
 if __name__ == "__main__":
-    ret = checkNaddWorkRecord(SERVER_URL, PROJECT_ID, TASK_ID, "e0149968", "2026-01-14", "1h 1/3h", "", "Adding work record via script", headers)
-    print(f"{ret}")
-        
+    records_df = get_work_records()
+    print(f"Fetched {len(records_df)} records.")
+    
+    #ret = checkNaddWorkRecord(SERVER_URL, PROJECT_ID, TASK_ID, "e0149968", "2026-01-14", "1h 1/3h", "", "Adding work record via script", headers)
+    #print(f"{ret}")
+
+    # 2. Convert DataFrame rows to dictionaries and iterate
+    for record in records_df:        
+        if record['project_name'] == 'PXM010' and record['date'] == '2026-01-13':
+            # 3. Call the Polarion REST function
+            # Note: Ensure variables like SERVER_URL and user_id are defined in your scope
+            ret = checkNaddWorkRecord(
+                _SERVER_URL=SERVER_URL, 
+                _PROJECT_ID=record['project_name'], 
+                _TASK_ID=record['task_id'], 
+                _user="e0149968", 
+                _date=record['date'], 
+                _timeSpent=str(record['hours']), 
+                _type="", 
+                _comment=record['task_des'], 
+                loc_headers=headers
+            )
+            print(f"Status for {task_id}: {ret}")        

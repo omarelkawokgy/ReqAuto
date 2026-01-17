@@ -1,18 +1,64 @@
 import gspread
 import pandas as pd
+import numpy as np
+from typing import List, Dict
 
-# 1. Authenticate using the downloaded JSON key file
-gc = gspread.service_account(filename='credentials.json')
+def get_work_records(spreadsheet_name: str = "TaskPlanning", worksheet_name: str = "Jan26_TimeSpnt") -> List[Dict]:
+    """
+    Fetches work records and standardizes project names based on specific rules.
+    """
+    try:
+        # ... (Previous authentication and data fetching steps remain the same) ...
+        gc = gspread.service_account(filename='..\..\..\GoogleCredentials\credentials.json')
+        sh = gc.open(spreadsheet_name) 
+        worksheet = sh.worksheet(worksheet_name)
+        all_data_raw = worksheet.get_all_values()[1:] 
+        all_data = [row[2:8] for row in all_data_raw] 
+        raw_headers = ['Day_Col', 'Date', 'ID', 'Task', 'Project', 'hrs']
+        df = pd.DataFrame(all_data, columns=raw_headers)
+        df['Date'] = df['Date'].replace('', np.nan).fillna(method='ffill')
+        df = df[df['Task'] != ''].reset_index(drop=True)
 
-# 2. Open the spreadsheet by its name or ID
-# You can find the ID in the URL: ://docs.google.com[YOUR_ID]/edit
-sh = gc.open("TaskPlanning") 
+        # 1. Rename columns to match desired output keys (before mapping)
+        df_mapped = df.rename(columns={
+            'Date': 'date',
+            'ID': 'task_id',
+            'Task': 'task_des',
+            'Project': 'project_name',
+            'hrs': 'hours'
+        })
+        
+        # 2. Define the project mapping rules
+        # Key = Old Name from Google Sheet
+        # Value = New standardized name/ID
+        project_name_map = {
+            'MCT': 'PXM010',
+            'POE54': '61DE-62527',
+            'XCSP': 'XCSP', # This one remains the same
+            'NCAR': 'Z-08535'
+        }
+        
+        # 3. Apply the mapping using Pandas replace method
+        df_mapped['project_name'].replace(project_name_map, inplace=True)
+        
+        # 4. Select final columns and convert to list of dictionaries
+        final_df = df_mapped[['date', 'task_id', 'task_des', 'project_name', 'hours']]
+        task_array_of_objects = final_df.to_dict(orient='records')
+        
+        return task_array_of_objects
 
-# 3. Select the specific worksheet (e.g., 'Sheet1')
-worksheet = sh.worksheet("Jan26_TimeSpnt")
+    except Exception as e:
+        print(f"An error occurred during data retrieval: {e}")
+        return []
 
-# 4. Fetch the value of a specific cell (e.g., F2)
-cell_value = worksheet.acell('F2').value
 
-# Print the value
-print(f"The value in cell F2 is: {cell_value}")
+# Example of how to run this function if you execute this script directly
+if __name__ == "__main__":
+    
+    records = get_work_records()
+    print(f"Fetched {len(records)} records.")
+    # You can loop through the records here if you want:
+    for record in records:
+        if record['project_name'] == 'PXM010' and record['date'] == '2026-01-13':
+                print(record['task_des'])
+
