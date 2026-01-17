@@ -1,3 +1,29 @@
+"""
+POLARION LIVEDOC METADATA RETRIEVER
+-----------------------------------
+Purpose:
+    Retrieves and displays high-level metadata for a specific Polarion LiveDoc 
+    using the REST API. This is typically used to verify a document's existence 
+    and extract its unique System ID or URI before performing more intensive 
+    operations like item extraction or updates.
+    
+    CHECKS CONNECTION TO DOCUMENT AND ITS EXISTANCE
+
+Functionality:
+    - Performs an HTTP GET request to the specific Document resource endpoint.
+    - Parses the JSON:API response to extract the 'attributes' and 'links' objects.
+    - Outputs the Document Title (as seen in the UI), the Internal ID (UUID), 
+      and the REST API Self-Link (URI).
+
+Inputs:
+    - _doc_url (str): The fully qualified REST URL for the document 
+      (e.g., .../spaces/{spaceId}/documents/{docName}).
+    - loc_headers (dict): Authorization headers containing the Bearer Token.
+
+Returns:
+    - The JSON data object if successful, or None if the request fails.
+"""
+    
 import requests
 import json
 import urllib.parse

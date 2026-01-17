@@ -1,3 +1,26 @@
+"""
+POLARION DOCUMENT WORK ITEM EXTRACTOR (REST API)
+------------------------------------------------
+Purpose:
+    This script connects to the Polarion REST API to retrieve specific types 
+    of Work Items (e.g., 'parameter') contained within a LiveDoc. 
+
+Key Functionalities:
+    1. Authentication: Uses Bearer Token-based security to access the ALM server.
+    2. Connection Testing: Validates project-level access before processing.
+    3. Document Traversal: Navigates through a specific Space/Document path.
+    4. Paginated Data Retrieval: Handles large documents by automatically 
+       looping through JSON:API 'next' pagination links to ensure all 
+       Work Items (Document Parts) are fetched.
+    5. Data Filtering: Extracts 'included' Work Item objects from the 
+       Document Parts response based on a specific Work Item type.
+    6. Search in type of workitem in document for workitems which its title contains a certain word 
+
+Author: [Your Name]
+Date: 2026-01-17
+Version: 1.0
+"""
+
 import requests
 import json
 import urllib.parse
@@ -20,48 +43,6 @@ headers = {
     'Content-Type': 'application/json', 
     'Accept': 'application/json'
 }
-
-# def get_workitemList(_doc_url, _wi_type, loc_headers):
-#   # The space and doc name should be raw (e.g. "SW" and "HLD Specs")
-#   get_items_url = (_doc_url+f"/parts"
-#   f"?include=workItem"
-#   f"&fields[workitems]=type,title,id")
-#   
-#   print(f"get_items_url: {get_items_url}")
-#   
-#   response = requests.get(get_items_url, headers=loc_headers, verify=False)
-#   print(f"DEBUG: Status Code Received: {response.status_code}") # Add this
-#   if response.status_code == 200:
-#       response_json = response.json()
-#   
-#       # Polarion REST (JSON:API) stores related objects in 'included'
-#       included_objects = response_json.get('included', [])
-#       print(f"DEBUG: Found {len(included_objects)} included_objects(s).")
-#       
-#       # Filter 'included' objects where the type is 'interface'
-#       # In 2026, 'type' is typically an ID within the attributes
-#       wi_list = [
-#       obj for obj in included_objects 
-#       if obj.get('type') == 'workitems' and obj.get('attributes', {}).get('type') == _wi_type
-#       ]
-#       print(f"\nTotal wi_list {_wi_type} collected: {len(wi_list)}")
-#     
-#       for obj in included_objects:
-#         #Get the data inside attributes
-#         attrs = obj.get('attributes', {})
-#         obj_id = obj.get('id')
-#         
-#         #Get the specific Polarion Type (e.g., 'interface', 'requirement', 'heading')
-#         polarion_type = attrs.get('type')
-#         title = attrs.get('title', 'NO TITLE')
-#         
-#         print(f"--- Object ID: {obj_id} ---")
-#         print(f"  Resource Type (API): {obj.get('type')}")
-#         print(f"  Polarion Type (WorkItem): {polarion_type}")
-#         print(f"  Title: {title}")
-#   else:
-#       print(f"Failed to fetch document items: {response.status_code}")
-#   return wi_list
 
 def get_workitemList(_doc_url, _wi_type, loc_headers):
 
@@ -130,6 +111,7 @@ def test_connection(_SERVER_URL, _PROJECT_ID, loc_headers):
         
 if __name__ == "__main__":
     
+    # SEARCH FOR ITEM IN DOCUMENT
     test_connection(SERVER_URL, PROJECT_ID, headers)
     # URL encode IDs to handle spaces or special characters
     safe_space = urllib.parse.quote(SPACE_ID)

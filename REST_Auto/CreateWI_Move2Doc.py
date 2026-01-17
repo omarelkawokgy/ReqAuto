@@ -1,3 +1,20 @@
+"""
+POLARION WORK ITEM CREATOR & DOCUMENT MOVER
+-------------------------------------------
+Brief:
+    Automates the batch creation of Polarion Work Items (Requirements, Interfaces, 
+    Parameters) and attaches them to a specific LiveDoc and Parent Heading.
+
+Key Actions:
+    1. Connection Validation: Verifies API access to the project.
+    2. Duplicate Prevention: Scans the target LiveDoc to ensure the item doesn't 
+       already exist before creating.
+    3. Work Item Creation: POSTs new data to the project-level work item endpoint.
+    4. Relationship Linking: Automatically links the new item to a 'Parent' work item.
+    5. LiveDoc Integration: Executes 'moveToDocument' to place the new item 
+       within the specific document structure.
+"""
+
 import requests
 import json
 import urllib.parse
@@ -247,7 +264,9 @@ if __name__ == "__main__":
         f"{wi_link(interface1_id)} " # This creates the visual link
         "param1 is true"
     )
-    #print(f"req description: {new_desc_text}")
+    print(f"req description: {new_desc_text}")
     req_data['data'][0]['attributes']['description']['value'] = new_desc_text
+    
+    # CREATING list of INTERFACES
     for wi in inter_data_list:
         create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
