@@ -21,18 +21,53 @@ import json
 import urllib.parse
 from get_pol_doc import get_polarion_document
 from get_wi_list import get_workitemList
+SERVER_URL_ALM_DEV = "https://almdev.mahle/polarion/rest/v1"
+SERVER_URL_ALM = "https://alm.mahle/polarion/rest/v1"
 
-# --- SETTINGS ---
-SERVER_URL = "https://almdev.mahle/polarion/rest/v1"
-PROJECT_ID = "PDPXMT"
-TOKEN = "eyJraWQiOiI1ZjA2NWZmZC0wYTkxNGEzMC0wNWE0YjE4Yy1hNTQxMWYyNCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiYzhjMmU1NGUtMGE5MTRhMzAtNzY5MjAyZDUtODM4NWNjOGIiLCJleHAiOjE4NTQ5MTMzNzQsImlhdCI6MTc2ODU5OTc3NH0.TpQf5YcwVx3GZ14KD6YMWU9AaXVF5mno4UvBQ61MNBmr1Y_5ltvCP8pnjbl9skFh2nsvzmR2sqYdb1HlLvjLJgdGTDpWdmN_X7pcRZkvg9QqQA6zgXXjKhTgA1Tp0A_ztQ_Umhr1D_HvI3AODf7vc84rBgzZhbAHVEk3vluXigKweyExEQZX7TiIl7BWZ2fbr1nLzCmdAv1dJfI3OFFf30rwbv4WXL6zt0sVWptbymVdTlA5TjcY-BKyg-bFTvV62hktMH3LhPQ0FqsNCkoYSPjKEPx7nLkwBD7MNC9ZvFkUIHDG3tzQOw2nL7IWVYAN2wxCyh2_bgFzkDZsRBFJuw" # (Your token)
+POE54_ID = "61DE-62527"
+XCSP_ID = "XCSP"
+TRAINING_ID = "PDPXMT"
+MCT_ID = ""
+
+TOKEN_ALMDEV = "eyJraWQiOiI1ZjA2NWZmZC0wYTkxNGEzMC0wNWE0YjE4Yy1hNTQxMWYyNCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiYzhjMmU1NGUtMGE5MTRhMzAtNzY5MjAyZDUtODM4NWNjOGIiLCJleHAiOjE4NTQ5MTMzNzQsImlhdCI6MTc2ODU5OTc3NH0.TpQf5YcwVx3GZ14KD6YMWU9AaXVF5mno4UvBQ61MNBmr1Y_5ltvCP8pnjbl9skFh2nsvzmR2sqYdb1HlLvjLJgdGTDpWdmN_X7pcRZkvg9QqQA6zgXXjKhTgA1Tp0A_ztQ_Umhr1D_HvI3AODf7vc84rBgzZhbAHVEk3vluXigKweyExEQZX7TiIl7BWZ2fbr1nLzCmdAv1dJfI3OFFf30rwbv4WXL6zt0sVWptbymVdTlA5TjcY-BKyg-bFTvV62hktMH3LhPQ0FqsNCkoYSPjKEPx7nLkwBD7MNC9ZvFkUIHDG3tzQOw2nL7IWVYAN2wxCyh2_bgFzkDZsRBFJuw" # (Your token)
+TOKEN_ALM = "eyJraWQiOiI0MzFiODM3Mi0wYTkxNjM1Mi03ODJjMDc2ZS04ZDg5NzJkNiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiY2RiMTYyMDMtMGE5MTYzNTItNmZmMzYxYTctMGMyZmMxYzQiLCJleHAiOjE4NTQ5OTYxMTIsImlhdCI6MTc2ODY4MjUxMn0.hwMI-NQGl_Pij5Q-34ZooordSMmLqEoXy6Z5BhWpb1wLMY2nEt9wSK4mzBCoXn6jzQ2KcMvKG6EMawskrjgkdH21RC1mJcR24UXVu3NT1WxiOD1_B5RZ2_kF2MMIixSGw2iaP84BKlT5CbuCWTkKGPdSjFJaXrQSoKyal-4cH04VfH_GzEvJusnumZ7xf5rUo18i3bBX_STuAgaSiFh5g5hC6MOckl_5q-lLsFDKdNEV6T8sG1bpnxhSWXLqPFpOyFqqgnbyyeDRYWrNY8hLc4gA1Tg_eCats_yLSYeMxyOVAL0JF72GOcDsrfTQ9495BwaguPORr0R4_KElytFsqQ"
+
+POE54_HLD = "2_Software_Architectural_Design/POE54_SW_HLD_Name"
+TRAINING = "SW/HLD Specs" 
+
 # Format: "wiki/SW/HLD%20Specs"
-DOC_PATH = "SW/HLD Specs" 
-SPACE_ID = "SW"
-DOC_NAME = "HLD Specs"
+POE54_HLD_PATH = "2_Software_Architectural_Design/POE54_SW_HLD_Name"
+TRAINING_PATH = "SW/HLD Specs"
+
+POE54_SPACE = "2_Software_Architectural_Design"
+TRAINING_SPACE = "SW"
+
+POE54_DOC_NAME = "POE54_SW_HLD_Name"
+TRAINIG_DOC_NAME = "HLD Specs"
+
+PROJ = "TRAINING"
+
+if PROJ == "POE54" :
+   SERVER_URL = SERVER_URL_ALM
+   PROJECT_ID = POE54_ID
+   TOKEN = TOKEN_ALM
+   DOC_PATH = POE54_HLD
+   SPACE_ID = POE54_SPACE
+   DOC_PATH = POE54_HLD_PATH
+   DOC_NAME = POE54_DOC_NAME
+   
+elif  PROJ == "TRAINING":
+   SERVER_URL = SERVER_URL_ALM_DEV
+   PROJECT_ID = TRAINING_ID
+   TOKEN = TOKEN_ALMDEV
+   DOC_PATH = TRAINING
+   SPACE_ID = TRAINING_SPACE
+   DOC_PATH = TRAINING
+   DOC_NAME = TRAINIG_DOC_NAME
+
 # Optional: ID of the heading you want this under (e.g., 'EL-123'). 
 # If you don't have one yet, leave as None.
-PARENT_ID = "PDPXMT-25253" 
+PARENT_ID = "PDPXMT-25252" 
 SEVERITY = "should_have"
 
 headers = {
@@ -191,26 +226,28 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_re
     #new_wi_id = new_wi_id.replace("", _PROJECT_ID)
     new_wi_id = new_id.replace(f"{_PROJECT_ID}/", "")
     print(f"new_wi_id: {new_wi_id}")
+    
+    
     # 2. Move to Document
     # Use just DOC_PATH if it already contains the space (e.g. 'SW/HLD Specs')
     move_url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems/{new_wi_id}/actions/moveToDocument"
     
     doc_ref = f"{_PROJECT_ID}/{_SPACE_ID}/{_DOC_NAME}"
-    
+        
     # The URL targets the 'linkedworkitems' sub-resource of your NEW work item
     link_url = f"{_SERVER_URL}/projects/{_PROJECT_ID}/workitems/{new_wi_id}/linkedworkitems"
-
+    
     link_payload = {
         "data": [{
             "type": "linkedworkitems",
             "attributes": {
-                "role": "parent"  # Change to 'has_parent' if that is your system's ID
+                "role": "has_parent"  # Change to 'has_parent' if that is your system's ID
             },
             "relationships": {
                 "workItem": {
                     "data": {
-                        "id": f"{_PROJECT_ID}/{_PARENT_ID}",
-                        "type": "workitems"
+                        "id": _PARENT_ID,
+                        "type": "heading"
                     }
                 }
             }
@@ -225,10 +262,9 @@ def create_n_move(_SERVER_URL, _PROJECT_ID, _SPACE_ID, _DOC_NAME, _PARENT_ID,_re
                 "targetDocument": doc_ref
     }
     
-    print(f"\n[Step 2] Moving to Document: {move_url}")
-    print(f"Payload: {json.dumps(move_data)}")
-    
+    # Send the POST request with the new structured payload
     move_res = requests.post(move_url, headers=loc_headers, json=move_data, verify=False)
+
     
     if move_res.status_code in [200, 204]:
         print(f"+++ Successfully moved {new_wi_id} into Document.")
@@ -283,10 +319,15 @@ if __name__ == "__main__":
     interface1 = interfaceList[0]
     interface1_id = interface1['id'].split('/')[-1] # e.g., 'PDPXMT-25234'
     print(f"parameterList len: {len(parameterList)}")
-    raw_text = "SWC2 shall provide interface3 with false when {SWC_init} this is parameter {SWC_Param1} is true another interface {ACOM_SpdFbPwmHz_Get} also another param {SWC_Param1}"
+    #raw_text = "SWC2 shall provide interface3 with false when {SWC_init} this is parameter {SWC_Param1} is true another interface {ACOM_SpdFbPwmHz_Get} also another param {SWC_Param1}"
+    raw_text = [
+        "CANM shall determine that active CAN communication is active when {APPH_CanEnableGet} returns TRUE, and shall provide the CAN operational state status via {CANM_CanActiveFlg_Get}.",            
+        "CANM shall prevent CAN communication from influencing internal requests if {CAN} is not the selected communication interface, as indicated by {APPH_CanEnableGet} returning FALSE, and shall provide CAN inactive status via {CANM_CanActiveFlg_Get}.",
+        "CANM shall extract the speed request received via {CAN} communication and provide the requested speed in rpm via {CANM_SpeedReqRpm_Get} using the internal CAN message processing executed by {CANM_MainFunction}."
+    ]
     
-    polTxtP = process_requirement_text(raw_text, interfaceList+parameterList)
-    print(f"req description: {polTxtP}")
+    polTxtP = process_requirement_text(raw_text[1], interfaceList+parameterList)
+
 #     # Define the new description text using Polarion Wiki Markup for a link
 #     new_desc_text = (
 #         "SWC2 shall provide interface1 with false when "
@@ -301,3 +342,5 @@ if __name__ == "__main__":
 #     for wi in inter_data_list:
     create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, req_data, doc_url, headers)
       #create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
+    
+    #TODO: if parent does not exist in document then dont create workitem

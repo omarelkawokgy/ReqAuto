@@ -3,13 +3,15 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict
 
-def get_work_records(spreadsheet_name: str = "TaskPlanning", worksheet_name: str = "Jan26_TimeSpnt") -> List[Dict]:
+def get_work_records(spreadsheet_name: str = "TaskPlanning", worksheet_name: str = "Mar26_TimeSpnt") -> List[Dict]:
     """
     Fetches work records and standardizes project names based on specific rules.
     """
     try:
         # ... (Previous authentication and data fetching steps remain the same) ...
-        gc = gspread.service_account(filename='..\..\..\GoogleCredentials\credentials.json')
+        filename='..\..\..\credentials.json';
+        print(f"{filename}")
+        gc = gspread.service_account(filename)
         sh = gc.open(spreadsheet_name) 
         worksheet = sh.worksheet(worksheet_name)
         all_data_raw = worksheet.get_all_values()[1:] 
