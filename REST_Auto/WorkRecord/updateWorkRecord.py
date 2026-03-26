@@ -8,7 +8,7 @@ from ReadFromSheet import get_work_records
 # --- SETTINGS ---
 SERVER_URL = "https://alm.mahle/polarion/rest/v1"
 PROJECT_ID = "PDPXMT"
-TOKEN_ALM = "eyJraWQiOiI0MzFiODM3Mi0wYTkxNjM1Mi03ODJjMDc2ZS04ZDg5NzJkNiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiY2RiMTYyMDMtMGE5MTYzNTItNmZmMzYxYTctMGMyZmMxYzQiLCJleHAiOjE4NTQ5OTYxMTIsImlhdCI6MTc2ODY4MjUxMn0.hwMI-NQGl_Pij5Q-34ZooordSMmLqEoXy6Z5BhWpb1wLMY2nEt9wSK4mzBCoXn6jzQ2KcMvKG6EMawskrjgkdH21RC1mJcR24UXVu3NT1WxiOD1_B5RZ2_kF2MMIixSGw2iaP84BKlT5CbuCWTkKGPdSjFJaXrQSoKyal-4cH04VfH_GzEvJusnumZ7xf5rUo18i3bBX_STuAgaSiFh5g5hC6MOckl_5q-lLsFDKdNEV6T8sG1bpnxhSWXLqPFpOyFqqgnbyyeDRYWrNY8hLc4gA1Tg_eCats_yLSYeMxyOVAL0JF72GOcDsrfTQ9495BwaguPORr0R4_KElytFsqQ"
+TOKEN_ALM = "eyJraWQiOiI0MzFiODM3Mi0wYTkxNjM1Mi03ODJjMDc2ZS04ZDg5NzJkNiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiMjk5ZDM5MGItMGE5MTYzNTItNjE2YWVjNjQtNGIzMmU1ZmMiLCJleHAiOjE4NjA4MzMyNjIsImlhdCI6MTc3NDUxOTY2Mn0.hir2Qc3dylPKkSqYdkmuOGspPmZYOieZNIsTM9Z-zaVj7V-uzaM0Tsoi3pHdv3ZA8pR6S6xcNWdLjj1dAfKIYhx0p05cwWnUHpYa1RrfQQPTSIrEfCR77jbRG9udWOgZVrUxSpm0ARJhRql5eitcobVSRmg9Lqa8jn27zhpuWP3af4ZpfgVschjE2dDmYXK_zy_XkObfKsuQBGEiT6Au0WyoVi7qRr6UhzxTLQDA70AqqoiPVUq251vWn5b7hBdwouSZsh3RTaBa7gHSo3LgPedR4VxnNE11TADdYeTlY7tkdKtSroW6vpLaO362h_19E83ijNZzjOtSiiPsEcXGEA"
 TOKEN = TOKEN_ALM
 
 TASK_ID = "PDPXMT-23815"
@@ -110,7 +110,7 @@ def checkNaddWorkRecord(_SERVER_URL, _PROJECT_ID, _TASK_ID, _user, _date, _timeS
         print(f"✅ Duplicate Found: Skipping record")    
         
 if __name__ == "__main__":
-    records_df = get_work_records()
+    records_df = get_work_records(week_number=12)
     print(f"Fetched {len(records_df)} records.")
     
     #ret = checkNaddWorkRecord(SERVER_URL, PROJECT_ID, TASK_ID, "e0149968", "2026-01-14", "1h 1/3h", "", "Adding work record via script", headers)
