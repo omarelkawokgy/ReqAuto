@@ -30,7 +30,7 @@ TRAINING_ID = "PDPXMT"
 MCT_ID = ""
 
 TOKEN_ALMDEV = "eyJraWQiOiI1ZjA2NWZmZC0wYTkxNGEzMC0wNWE0YjE4Yy1hNTQxMWYyNCIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiYzhjMmU1NGUtMGE5MTRhMzAtNzY5MjAyZDUtODM4NWNjOGIiLCJleHAiOjE4NTQ5MTMzNzQsImlhdCI6MTc2ODU5OTc3NH0.TpQf5YcwVx3GZ14KD6YMWU9AaXVF5mno4UvBQ61MNBmr1Y_5ltvCP8pnjbl9skFh2nsvzmR2sqYdb1HlLvjLJgdGTDpWdmN_X7pcRZkvg9QqQA6zgXXjKhTgA1Tp0A_ztQ_Umhr1D_HvI3AODf7vc84rBgzZhbAHVEk3vluXigKweyExEQZX7TiIl7BWZ2fbr1nLzCmdAv1dJfI3OFFf30rwbv4WXL6zt0sVWptbymVdTlA5TjcY-BKyg-bFTvV62hktMH3LhPQ0FqsNCkoYSPjKEPx7nLkwBD7MNC9ZvFkUIHDG3tzQOw2nL7IWVYAN2wxCyh2_bgFzkDZsRBFJuw" # (Your token)
-TOKEN_ALM = "eyJraWQiOiI0MzFiODM3Mi0wYTkxNjM1Mi03ODJjMDc2ZS04ZDg5NzJkNiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiY2RiMTYyMDMtMGE5MTYzNTItNmZmMzYxYTctMGMyZmMxYzQiLCJleHAiOjE4NTQ5OTYxMTIsImlhdCI6MTc2ODY4MjUxMn0.hwMI-NQGl_Pij5Q-34ZooordSMmLqEoXy6Z5BhWpb1wLMY2nEt9wSK4mzBCoXn6jzQ2KcMvKG6EMawskrjgkdH21RC1mJcR24UXVu3NT1WxiOD1_B5RZ2_kF2MMIixSGw2iaP84BKlT5CbuCWTkKGPdSjFJaXrQSoKyal-4cH04VfH_GzEvJusnumZ7xf5rUo18i3bBX_STuAgaSiFh5g5hC6MOckl_5q-lLsFDKdNEV6T8sG1bpnxhSWXLqPFpOyFqqgnbyyeDRYWrNY8hLc4gA1Tg_eCats_yLSYeMxyOVAL0JF72GOcDsrfTQ9495BwaguPORr0R4_KElytFsqQ"
+TOKEN_ALM = "eyJraWQiOiI0MzFiODM3Mi0wYTkxNjM1Mi03ODJjMDc2ZS04ZDg5NzJkNiIsInR5cCI6IkpXVCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlMDE0OTk2OCIsImlkIjoiMjk5ZDM5MGItMGE5MTYzNTItNjE2YWVjNjQtNGIzMmU1ZmMiLCJleHAiOjE4NjA4MzMyNjIsImlhdCI6MTc3NDUxOTY2Mn0.hir2Qc3dylPKkSqYdkmuOGspPmZYOieZNIsTM9Z-zaVj7V-uzaM0Tsoi3pHdv3ZA8pR6S6xcNWdLjj1dAfKIYhx0p05cwWnUHpYa1RrfQQPTSIrEfCR77jbRG9udWOgZVrUxSpm0ARJhRql5eitcobVSRmg9Lqa8jn27zhpuWP3af4ZpfgVschjE2dDmYXK_zy_XkObfKsuQBGEiT6Au0WyoVi7qRr6UhzxTLQDA70AqqoiPVUq251vWn5b7hBdwouSZsh3RTaBa7gHSo3LgPedR4VxnNE11TADdYeTlY7tkdKtSroW6vpLaO362h_19E83ijNZzjOtSiiPsEcXGEA"
 
 POE54_HLD = "2_Software_Architectural_Design/POE54_SW_HLD_Name"
 TRAINING = "SW/HLD Specs" 
@@ -45,7 +45,7 @@ TRAINING_SPACE = "SW"
 POE54_DOC_NAME = "POE54_SW_HLD_Name"
 TRAINIG_DOC_NAME = "HLD Specs"
 
-PROJ = "TRAINING"
+PROJ = "POE54"
 
 if PROJ == "POE54" :
    SERVER_URL = SERVER_URL_ALM
@@ -115,13 +115,72 @@ inter_data = {
 
 
 inter_data_list = [
-    {"title": "ACOM_Init", "function": "+ ACOM_Init(): void", "desc": "Initializes the ACOM software component.", "severity": "must_have"},
-    {"title": "ACOM_MainFunction", "function": "+ ACOM_MainFunction(): void", "desc": "Periodic main function call for the component.", "severity": "must_have"},
-    {"title": "ACOM_SpeedReqRpm_Get", "function": "+ ACOM_SpeedReqRpm_Get(): uint16_t", "desc": "Getter for the requested speed in RPM.", "severity": "should_have"},
-    {"title": "ACOM_SpdReqOutOfRngFig_Get", "function": "+ ACOM_SpdReqOutOfRngFig_Get(): boolean", "desc": "Flag indicating if the speed request is out of range.", "severity": "should_have"},
-    {"title": "ACOM_SpdFbPwmHz_Get", "function": "+ ACOM_SpdFbPwmHz_Get(): uint16_t", "desc": "Getter for the speed feedback PWM frequency in Hz.", "severity": "should_have"},
-    {"title": "ACOM_SpdReqVolt_Set", "function": "+ ACOM_SpdReqVolt_Set(int16_t): void", "desc": "Setter for the requested voltage.", "severity": "should_have"},
-    {"title": "ACOM_ActualSpdRpm_Set", "function": "+ ACOM_ActualSpdRpm_Set(int16_t): void", "desc": "Setter for the actual feedback speed in RPM.", "severity": "should_have"}
+    {
+        "title": "J1939_SET_SPN_STALLFAULT",
+        "function": "+ J1939_SET_SPN_STALLFAULT(value: bool): void",
+        "desc": "Sets the stall fault status in the J1939 Pump Faults status message.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_LOWLOADOPERATION",
+        "function": "+ J1939_SET_SPN_LOWLOADOPERATION(value: bool): void",
+        "desc": "Updates the low load operation fault indication in the J1939 Pump Faults message.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_OVERCURRENT",
+        "function": "+ J1939_SET_SPN_OVERCURRENT(value: bool): void",
+        "desc": "Sets the overcurrent fault flag in the J1939 Pump Faults message.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_UNDERVOLTAGE",
+        "function": "+ J1939_SET_SPN_UNDERVOLTAGE(value: bool): void",
+        "desc": "Sets the undervoltage fault status for transmission via J1939.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_OVERVOLTAGE",
+        "function": "+ J1939_SET_SPN_OVERVOLTAGE(value: bool): void",
+        "desc": "Updates the overvoltage fault indication in the J1939 Pump Faults message.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_OVERTEMP",
+        "function": "+ J1939_SET_SPN_OVERTEMP(value: bool): void",
+        "desc": "Sets the overtemperature fault flag based on detected PCB overtemperature conditions.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_OVERTEMPDERATING",
+        "function": "+ J1939_SET_SPN_OVERTEMPDERATING(value: bool): void",
+        "desc": "Sets the overtemperature derating fault indication in the J1939 message.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_VOLATGEDRAFTING",
+        "function": "+ J1939_SET_SPN_VOLATGEDRAFTING(value: bool): void",
+        "desc": "Updates the voltage derating fault status for J1939 Pump Faults reporting.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_ERRORSHORTCIRCUIT",
+        "function": "+ J1939_SET_SPN_ERRORSHORTCIRCUIT(value: bool): void",
+        "desc": "Sets the short-circuit fault indication in the J1939 Pump Faults message.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_INTERNALFAULT",
+        "function": "+ J1939_SET_SPN_INTERNALFAULT(value: bool): void",
+        "desc": "Sets the internal fault status bit for J1939 Pump Faults transmission.",
+        "severity": "must_have"
+    },
+    {
+        "title": "J1939_SET_SPN_CANERROR",
+        "function": "+ J1939_SET_SPN_CANERROR(value: bool): void",
+        "desc": "Updates the CAN communication error flag in the J1939 Pump Faults message.",
+        "severity": "must_have"
+    }
 ]
 
 def fill_list(item, wi_type):
@@ -321,12 +380,14 @@ if __name__ == "__main__":
     print(f"parameterList len: {len(parameterList)}")
     #raw_text = "SWC2 shall provide interface3 with false when {SWC_init} this is parameter {SWC_Param1} is true another interface {ACOM_SpdFbPwmHz_Get} also another param {SWC_Param1}"
     raw_text = [
-        "CANM shall determine that active CAN communication is active when {APPH_CanEnableGet} returns TRUE, and shall provide the CAN operational state status via {CANM_CanActiveFlg_Get}.",            
-        "CANM shall prevent CAN communication from influencing internal requests if {CAN} is not the selected communication interface, as indicated by {APPH_CanEnableGet} returning FALSE, and shall provide CAN inactive status via {CANM_CanActiveFlg_Get}.",
-        "CANM shall extract the speed request received via {CAN} communication and provide the requested speed in rpm via {CANM_SpeedReqRpm_Get} using the internal CAN message processing executed by {CANM_MainFunction}."
+        "COMH shall collect motor error information by calling {MCMD_MCTL_ERRORS_GET} during execution of {COMH_UpdateFaultsMessage}. COMH shall collect application error information by calling {APMD_APPL_ERRORS_GET} during execution of {COMH_UpdateFaultsMessage}. COMH shall collect hardware driver error information by calling {HWMD_HWDD_ERRORS_GET} during execution of {COMH_UpdateFaultsMessage}.",
+        "COMH shall set the Over‑Temperature sticky fault bit. If motor errors indicate a stall condition, COMH shall set the Stall Fault sticky fault bit. If motor errors indicate a low‑load condition, COMH shall set the Low‑Load Operation sticky fault bit. If application errors indicate a voltage derating condition, COMH shall set the Voltage Derating sticky fault bit. If application errors indicate PCB over‑temperature speed degradation, COMH shall set the Over‑Temperature Derating sticky fault bit. If application errors indicate an undervoltage condition, COMH shall set the Undervoltage sticky fault bit. If application errors indicate an overvoltage condition, COMH shall set the Overvoltage sticky fault bit. If motor errors indicate an over‑current condition, COMH shall set the Over‑Current sticky fault bit.",
+        "COMH shall check whether the transmit push‑to‑queue operation is confirmed by calling {J1939_GetTxPushToQueueConfirmedFlag}. COMH shall update Pump Faults SPNs only if {J1939_GetTxPushToQueueConfirmedFlag} indicates a confirmed transmit operation.",
+        "COMH shall update Pump Faults SPNs by calling the following interfaces using the corresponding sticky fault bits:{J1939_SET_SPN_STALLFAULT}{J1939_SET_SPN_LOWLOADOPERATION}{J1939_SET_SPN_OVERCURRENT}{J1939_SET_SPN_UNDERVOLTAGE}{J1939_SET_SPN_OVERVOLTAGE}{J1939_SET_SPN_OVERTEMP}{J1939_SET_SPN_OVERTEMPDERATING}{J1939_SET_SPN_VOLATGEDRAFTING}{J1939_SET_SPN_ERRORSHORTCIRCUIT}{J1939_SET_SPN_INTERNALFAULT}{J1939_SET_SPN_CANERROR}.",
+        "COMH shall Transmit Confirmation Reset after Pump Faults SPN update and sticky fault clearing, COMH shall clear the transmit confirmation flag by calling {J1939_SetTxPushToQueueConfirmedFlag}."
     ]
     
-    polTxtP = process_requirement_text(raw_text[1], interfaceList+parameterList)
+    polTxtP = process_requirement_text(raw_text[3], interfaceList+parameterList)
 
 #     # Define the new description text using Polarion Wiki Markup for a link
 #     new_desc_text = (
@@ -338,9 +399,9 @@ if __name__ == "__main__":
     req_data['data'][0]['attributes']['description']['value'] = polTxtP
     req_data['data'][0]['attributes']['title'] = polTxtP
 #     
-#     # CREATING list of INTERFACES
-#     for wi in inter_data_list:
+    # CREATING list of INTERFACES
+    #for wi in inter_data_list:
     create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, req_data, doc_url, headers)
-      #create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
+        #create_n_move(SERVER_URL, PROJECT_ID, safe_space, DOC_NAME, PARENT_ID, fill_list(wi, "interface"), doc_url, headers)
     
     #TODO: if parent does not exist in document then dont create workitem

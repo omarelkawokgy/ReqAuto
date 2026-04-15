@@ -110,7 +110,7 @@ def checkNaddWorkRecord(_SERVER_URL, _PROJECT_ID, _TASK_ID, _user, _date, _timeS
         print(f"✅ Duplicate Found: Skipping record")    
         
 if __name__ == "__main__":
-    records_df = get_work_records(week_number=12)
+    records_df = get_work_records(week_number=14)
     print(f"Fetched {len(records_df)} records.")
     
     #ret = checkNaddWorkRecord(SERVER_URL, PROJECT_ID, TASK_ID, "e0149968", "2026-01-14", "1h 1/3h", "", "Adding work record via script", headers)

@@ -77,7 +77,7 @@ def sunday_week_number(dt: pd.Timestamp) -> int:
     return adjusted.isocalendar().week
 # Example of how to run this function if you execute this script directly
 if __name__ == "__main__":
-    records = get_work_records(week_number=11)
+    records = get_work_records(week_number=13)
     print(f"Fetched {len(records)} records.")
     # You can loop through the records here if you want:
     for record in records:
