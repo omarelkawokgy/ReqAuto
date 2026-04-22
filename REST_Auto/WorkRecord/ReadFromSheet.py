@@ -4,7 +4,7 @@ import numpy as np
 from typing import List, Dict
 
 def get_work_records(spreadsheet_name: str = "TaskPlanning",
-                     worksheet_name: str = "Mar26_TimeSpnt",
+                     worksheet_name: str = "Apr26_TimeSpnt",
                      week_number: int = None) -> List[Dict]:
     """
     Fetches work records and optionally filters by ISO week number.
@@ -77,7 +77,7 @@ def sunday_week_number(dt: pd.Timestamp) -> int:
     return adjusted.isocalendar().week
 # Example of how to run this function if you execute this script directly
 if __name__ == "__main__":
-    records = get_work_records(week_number=13)
+    records = get_work_records(week_number=14)
     print(f"Fetched {len(records)} records.")
     # You can loop through the records here if you want:
     for record in records:
