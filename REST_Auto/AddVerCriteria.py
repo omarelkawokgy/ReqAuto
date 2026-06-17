@@ -1,8 +1,10 @@
 ################# Add Verification criteria to requirements ####################
+################# Add mandatory interface attributes also ######################
 import re
 import requests
 import json
 import urllib.parse
+import pandas as pd
 from get_pol_doc import get_polarion_document
 from get_wi_list import get_workitemList
 SERVER_URL_ALM_DEV = "https://almdev.mahle/polarion/rest/v1"
@@ -128,6 +130,38 @@ def update_verification(wi_id, verText, headers):
     )
     r.raise_for_status()
     
+def update_interface_attributes(wi_id, if_unit, def_val, if_min, if_max, headers):
+    payload = {
+        "data": {
+            "type": "workitems",
+            "id": f"{PROJECT_ID}/{wi_id}",
+            "attributes": {
+                "unit": if_unit,
+                "value": def_val,         # ✅ STRING or number
+                "lowerLimit": if_min,     # ✅ STRING or number
+                "upperLimit": if_max      # ✅ STRING or number
+            }
+        }
+    }
+
+    url = f"{SERVER_URL}/projects/{PROJECT_ID}/workitems/{wi_id}"
+
+    print("URL WAS:", url)
+    print("PAYLOAD ID:", payload["data"]["id"])
+
+    r = requests.patch(
+        url,
+        data=json.dumps(payload),
+        headers=headers,
+        verify=False
+    )
+    
+    print("STATUS:", r.status_code)
+    print("RESPONSE:", r.text)   # ✅ THIS IS CRITICA
+
+    r.raise_for_status()
+
+    
 def test_connection(_SERVER_URL, _PROJECT_ID, loc_headers):
     # This is the simplest possible call to verify access
     url_connectionTest = f"{_SERVER_URL}/projects/{_PROJECT_ID}"
@@ -149,6 +183,33 @@ def test_connection(_SERVER_URL, _PROJECT_ID, loc_headers):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
+def guess_attributes(name: str):
+    n = name.upper()
+
+    if any(k in n for k in [
+        "FLAG", "ENABLE", "ERROR", "FAULT", "STATUS",
+        "STALL", "OVER", "UNDER", "DERATING", "WARNING"
+    ]):
+        return "Boolean", "0", "0", "1"
+
+    if "VOLT" in n or "VBAT" in n or "VDC" in n or "VLOGIC" in n:
+        return "V", "0", "0", "17"
+
+    if "CURRENT" in n or "IBAT" in n:
+        return "A", "0", "0", "50"
+
+    if "TEMP" in n:
+        return "°C", "0", "-40", "125"
+
+    if "SPEED" in n or "RPM" in n:
+        return "RPM", "0", "0", "2000"
+
+    if "TIME" in n:
+        return "ms", "0", "0", "32700"
+
+    return "UInt16", "0", "0", "65535"
+
    
 if __name__ == "__main__":
     # URL encode IDs to handle spaces or special characters
@@ -167,229 +228,71 @@ if __name__ == "__main__":
                 "During UpdateFaultsMessage execution, verify COMH calls XCSP-39928, "
                 "XCSP-40459, and XCSP-38489 and correctly stores the returned error information."
             )
-        },
-        {
-            "wi_id": "61DE-62527-74500",
-            "ver_criteria": (
-                "Verify COMH updates CAN status by calling each specified J1939_SET_SPN interface "
-                "with correct scaling and published values observable on the CAN network."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-74386",
-            "ver_criteria": (
-                "Verify COMH updates all listed Pump Fault SPNs using the defined J1939_SET_SPN "
-                "interfaces and clears all sticky fault bits after the update cycle."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-74131",
-            "ver_criteria": (
-                "Verify ECUM ROM and RAM usage does not exceed the limits defined by "
-                "61DE-62527-74132 and 61DE-62527-74133 using memory analysis reports."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72999",
-            "ver_criteria": (
-                "Verify MAIN ROM and RAM usage remains within the limits defined by "
-                "61DE-62527-73000 and 61DE-62527-73001 based on compiled memory reports."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69032",
-            "ver_criteria": (
-                "Verify CANM reports CAN active when 61DE-62527-67440 returns TRUE and provides "
-                "the operational state via 61DE-62527-67474."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72548",
-            "ver_criteria": (
-                "Verify CANM evaluates the mode via 61DE-62527-72560 and calls 61DE-62527-72558 "
-                "with EOL_MODE configuration when the evaluated mode is EOL_MODE."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68978",
-            "ver_criteria": (
-                "Verify CANM executes cyclic CAN processing after initialization via "
-                "61DE-62527-67714 using 61DE-62527-67438 as the execution context."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68982",
-            "ver_criteria": (
-                "Verify CANM extracts the CAN speed request and provides the RPM value through "
-                "61DE-62527-67472 during cyclic CAN processing."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72556",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 Application layer by calling "
-                "61DE-62527-72542 during system initialization."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72546",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 Data Link layer by calling "
-                "61DE-62527-72541 as part of CAN stack initialization."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72555",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 Data Transfer layer by calling "
-                "61DE-62527-72538 during startup sequencing."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72553",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 Diagnostics layer by calling "
-                "61DE-62527-72544 once preceding layers are initialized."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72552",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 ECU address by calling 61DE-62527-72559 "
-                "using the parameter provided by 61DE-62527-72561."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72550",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 Memory Access layer by calling "
-                "61DE-62527-72539 during CAN stack setup."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72557",
-            "ver_criteria": (
-                "Verify CANM initializes the J1939 Transport layer by calling "
-                "61DE-62527-72543 as part of initialization."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72547",
-            "ver_criteria": (
-                "Verify CANM initializes the message handler by calling "
-                "61DE-62527-72545 after transport layer initialization."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68987",
-            "ver_criteria": (
-                "Verify CANM periodically updates 61DE-62527-67472 and 61DE-62527-67473 "
-                "during execution of 61DE-62527-67714."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68976",
-            "ver_criteria": (
-                "Verify CANM blocks CAN influence when 61DE-62527-67440 returns FALSE and "
-                "reports CAN inactive status via 61DE-62527-67474."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68984",
-            "ver_criteria": (
-                "Verify CANM provides a valid speed via 61DE-62527-67472 only when "
-                "61DE-62527-67440 returns TRUE, otherwise providing an invalid value (-1)."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72549",
-            "ver_criteria": (
-                "Verify CANM reconfigures the hardware filter via 61DE-62527-72558 using "
-                "the node address from 61DE-62527-72559 when not in EOL mode."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69007",
-            "ver_criteria": (
-                "Verify CANM retrieves ENABLE via 61DE-62527-69012, interprets 0/1 as FALSE/TRUE, "
-                "and stores the result in 61DE-62527-67473."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69006",
-            "ver_criteria": (
-                "Verify CANM retrieves SPEED_COMMAND via 61DE-62527-69013, scales it using "
-                "61DE-62527-72649, and stores the RPM in Speed_Request."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68993",
-            "ver_criteria": (
-                "Verify CANM sets 61DE-62527-67426 to FALSE upon reception of any valid CAN "
-                "message via the CAN_Message_IN buffer."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68992",
-            "ver_criteria": (
-                "Verify CANM sets 61DE-62527-67426 to TRUE when no valid CAN message is received "
-                "within the timeout defined by 61DE-62527-72648."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-72551",
-            "ver_criteria": (
-                "Verify CANM updates the stack status to STACK_DETECTED by calling "
-                "61DE-62527-72540."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-68988",
-            "ver_criteria": (
-                "Verify CANM sets 61DE-62527-67426 to TRUE whenever the Communication_Timeout_Detect "
-                "flag is active."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69009",
-            "ver_criteria": (
-                "Verify CANM writes the actual battery voltage from 61DE-62527-69030 to the CAN "
-                "transmit buffer using 61DE-62527-67432."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69002",
-            "ver_criteria": (
-                "Verify CANM writes the actual battery supply current from 61DE-62527-67434 "
-                "to the CAN transmit buffer using 61DE-62527-69027."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69008",
-            "ver_criteria": (
-                "Verify CANM writes the actual system speed from 61DE-62527-67445 to the CAN "
-                "transmit buffer using 61DE-62527-69025."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69003",
-            "ver_criteria": (
-                "Verify CANM writes the system temperature from 61DE-62527-67430 to the CAN "
-                "transmit buffer using 61DE-62527-69018."
-            )
-        },
-        {
-            "wi_id": "61DE-62527-69004",
-            "ver_criteria": (
-                "Verify CANM maps each listed error status flag from application interfaces "
-                "to the corresponding CAN transmit signals as specified."
-            )
         }
     ]
-    for item in verification_data:
-        # 3️⃣ Update work item
-        update_verification(item["wi_id"], item["ver_criteria"], headers)
-        print("✅ Verification criteria updated successfully")
+    
+    
+    
+#     for item in interfaceAttribute:
+#         update_interface_attributes(
+#             wi_id=item["wi_id"],
+#             if_unit=item["if_unit"],
+#             def_val=item["def_val"],
+#             if_min=item["if_min"],
+#             if_max=item["if_max"],
+#             headers=headers
+#         )
+#         print("✅ Interface attributes updated successfully")
+
+# Keep only Interface items
+
+# Load Excel
+    xf = pd.ExcelFile("C:\Mahle\AUX_Archi\ReqAuto\REST_Auto\workitems (33).xlsx", engine="openpyxl")
+    df = xf.parse(xf.sheet_names[0])
+
+    # Normalize column names
+    cols = {c.lower(): c for c in df.columns.astype(str)}
+    id_col = cols["id"]
+    title_col = cols["title"]
+    type_col = cols["type"]
+    
+    
+    print(f"ID column name: {id_col}")
+    print(f"Title column name: {title_col}")
+    print(f"Type column name: {type_col}")
+
+    iface = df[df[type_col].str.lower() == "interface"].copy()
+    iface["wi_id"] = iface[id_col].astype(str).str.split("/").str[-1]
+    interfaceAttribute = []
+    for _, row in iface.iterrows():
+        print(str(row[title_col]))
+        unit, dv, mn, mx = guess_attributes(str(row[title_col]))
+        interfaceAttribute.append({
+            "wi_id": row["wi_id"],
+            "if_unit": unit,
+            "def_val": dv,
+            "if_min": mn,
+            "if_max": mx
+        })
+    
+    print(f"Total interface items: {len(interfaceAttribute)}")
+    
+    for item in interfaceAttribute:
+        update_interface_attributes(
+            wi_id=item["wi_id"],
+            if_unit=item["if_unit"],
+            def_val=item["def_val"],
+            if_min=item["if_min"],
+            if_max=item["if_max"],
+            headers=headers
+        )
+        print("✅ Interface attributes updated successfully")
+
+
+#     for item in verification_data:
+#         # 3️⃣ Update work item
+#         update_verification(item["wi_id"], item["ver_criteria"], headers)
+#         print("✅ Verification criteria updated successfully")
     
     
     
